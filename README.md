@@ -9,3 +9,10 @@ See for more info on monetdb   www.monetdb.org
 - Did some tests, connect, create database etc. 
 - Started documentation
 
+---
+## To Do
+
+- Create Packages (Delphi / Lazarus)
+- Make tdbdataset descending components
+
+
