@@ -169,7 +169,6 @@ implementation
 procedure Register;
 begin
   RegisterComponents('MonetDB', [TMonetDBConnection, TMonetDBQuery]);
-
 end;
 
 { TMonetdb }
@@ -284,51 +283,47 @@ begin
     Result := True;
   end;
 
+
   if FLibraryLoaded
     then
       begin
-         GetProcAddress(self.LibraryHandle, 'monetdbe_version');
-
-         GetProcAddress(self.LibraryHandle, 'monetdbe_open');
-         GetProcAddress(self.libraryhandle, 'monetdbe_close');
-
-         GetProcAddress(self.LibraryHandle, 'monetdbe_error'          );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_get_autocommit' );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_set_autocommit' );
-
-         GetProcAddress(self.LibraryHandle, 'monetdbe_in_transaction' );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_query'          );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_result_fetch'   );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_cleanup_result' );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_prepare'        );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_bind'           );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_execute'        );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_cleanup_statement');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_append'           );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_null'             );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_get_columns'      );
-         GetProcAddress(self.LibraryHandle, 'monetdbe_dump_database');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_dump_table');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_get_mapi_port');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_dump_database');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_dump_table');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_error');
-
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_query');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_close_handle');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_fetch_row');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_fetch_field');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_get_type');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_seek_row');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_get_row_count');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_rows_affected');
-
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_get_field_count');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_result_error');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_get_len');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_explain');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_explain_query');
-         GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_explain_result');
+        @monetdbe_version              := GetProcAddress(self.LibraryHandle, 'monetdbe_version');
+        @monetdbe_open                 := GetProcAddress(self.LibraryHandle, 'monetdbe_open');
+        @monetdbe_close                := GetProcAddress(self.libraryhandle, 'monetdbe_close');
+        @monetdbe_error                := GetProcAddress(self.LibraryHandle, 'monetdbe_error'          );
+        @monetdbe_get_autocommit       := GetProcAddress(self.LibraryHandle, 'monetdbe_get_autocommit' );
+        @monetdbe_set_autocommit       := GetProcAddress(self.LibraryHandle, 'monetdbe_set_autocommit' );
+        @monetdbe_in_transaction       := GetProcAddress(self.LibraryHandle, 'monetdbe_in_transaction' );
+        @monetdbe_query                := GetProcAddress(self.LibraryHandle, 'monetdbe_query'          );
+        @monetdbe_result_fetch         := GetProcAddress(self.LibraryHandle, 'monetdbe_result_fetch'   );
+        @monetdbe_cleanup_result       := GetProcAddress(self.LibraryHandle, 'monetdbe_cleanup_result' );
+        @monetdbe_prepare              := GetProcAddress(self.LibraryHandle, 'monetdbe_prepare'        );
+        @monetdbe_bind                 := GetProcAddress(self.LibraryHandle, 'monetdbe_bind'           );
+        @monetdbe_execute              := GetProcAddress(self.LibraryHandle, 'monetdbe_execute'        );
+        @monetdbe_cleanup_statement    := GetProcAddress(self.LibraryHandle, 'monetdbe_cleanup_statement');
+        @monetdbe_append               := GetProcAddress(self.LibraryHandle, 'monetdbe_append'           );
+        @monetdbe_null                 := GetProcAddress(self.LibraryHandle, 'monetdbe_null'             );
+        @monetdbe_get_columns          := GetProcAddress(self.LibraryHandle, 'monetdbe_get_columns'      );
+        @monetdbe_dump_database        := GetProcAddress(self.LibraryHandle, 'monetdbe_dump_database');
+        @monetdbe_dump_table           := GetProcAddress(self.LibraryHandle, 'monetdbe_dump_table');
+        @monetdbe_get_mapi_port        := GetProcAddress(self.LibraryHandle, 'monetdbe_get_mapi_port');
+        @monetdbe_mapi_dump_database   := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_dump_database');
+        @monetdbe_mapi_dump_table      := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_dump_table');
+        @monetdbe_mapi_error           := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_error');
+        @monetdbe_mapi_query           := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_query');
+        @monetdbe_mapi_close_handle    := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_close_handle');
+        @monetdbe_mapi_fetch_row       := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_fetch_row');
+        @monetdbe_mapi_fetch_field     := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_fetch_field');
+        @monetdbe_mapi_get_type        := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_get_type');
+        @monetdbe_mapi_seek_row        := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_seek_row');
+        @monetdbe_mapi_get_row_count   := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_get_row_count');
+        @monetdbe_mapi_rows_affected   := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_rows_affected');
+        @monetdbe_mapi_get_field_count := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_get_field_count');
+        @monetdbe_mapi_result_error    := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_result_error');
+        @monetdbe_mapi_get_len         := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_get_len');
+        @monetdbe_mapi_explain         := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_explain');
+        @monetdbe_mapi_explain_query   := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_explain_query');
+        @monetdbe_mapi_explain_result  := GetProcAddress(self.LibraryHandle, 'monetdbe_mapi_explain_result');
       end;
 end;
 
