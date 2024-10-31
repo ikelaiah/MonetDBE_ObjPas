@@ -17,6 +17,8 @@ const
     {$MESSAGE Error 'Unsupported platform'}
   {$ENDIF}
 
+//var
+  //libmonetdbe:string;
 //const
   { TODO : Macro probably uses invalid symbol "monetdbe_export": }
   (* monetdbe_export extern *)
@@ -44,7 +46,7 @@ type
   PPmonetdbe_result = ^Pmonetdbe_result;
   Pmonetdbe_remote = ^monetdbe_remote;
   Pmonetdbe_mapi_server = ^monetdbe_mapi_server;
-  Pmonetdbe_options = ^monetdbe_options;
+  Pmonetdbe_options = ^Tmonetdbe_options;
   Pmonetdbe_column_bool = ^monetdbe_column_bool;
   Pmonetdbe_column_int8_t = ^monetdbe_column_int8_t;
   Pmonetdbe_column_int16_t = ^monetdbe_column_int16_t;
@@ -148,7 +150,7 @@ type
     usock: PUTF8Char;
   end;
 
-  monetdbe_options = record
+  Tmonetdbe_options = record
     memorylimit: Integer;
     querytimeout: Integer;
     sessiontimeout: Integer;
@@ -321,116 +323,6 @@ type
   monetdbe_MapiHdl = Pmonetdbe_MapiStatement;
   monetdbe_MapiMsg = Integer;
 
-function monetdbe_version(): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_version';
-
-function monetdbe_open(db: Pmonetdbe_database; url: PUTF8Char; opts: Pmonetdbe_options): Integer; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_open';
-
-function monetdbe_close(db: monetdbe_database): Integer; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_close';
-
-function monetdbe_error(db: monetdbe_database): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_error';
-
-function monetdbe_get_autocommit(dbhdl: monetdbe_database; result: PInteger): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_get_autocommit';
-
-function monetdbe_set_autocommit(dbhdl: monetdbe_database; value: Integer): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_set_autocommit';
-
-function monetdbe_in_transaction(dbhdl: monetdbe_database): Integer; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_in_transaction';
-
-function monetdbe_query(dbhdl: monetdbe_database; query: PUTF8Char; result: PPmonetdbe_result; affected_rows: Pmonetdbe_cnt): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_query';
-
-function monetdbe_result_fetch(mres: Pmonetdbe_result; res: PPmonetdbe_column; column_index: NativeUInt): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_result_fetch';
-
-function monetdbe_cleanup_result(dbhdl: monetdbe_database; result: Pmonetdbe_result): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_cleanup_result';
-
-function monetdbe_prepare(dbhdl: monetdbe_database; query: PUTF8Char; stmt: PPmonetdbe_statement; result: PPmonetdbe_result): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_prepare';
-
-function monetdbe_bind(stmt: Pmonetdbe_statement; data: Pointer; parameter_nr: NativeUInt): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_bind';
-
-function monetdbe_execute(stmt: Pmonetdbe_statement; result: PPmonetdbe_result; affected_rows: Pmonetdbe_cnt): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_execute';
-
-function monetdbe_cleanup_statement(dbhdl: monetdbe_database; stmt: Pmonetdbe_statement): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_cleanup_statement';
-
-function monetdbe_append(dbhdl: monetdbe_database; const schema: PUTF8Char; const table: PUTF8Char; input: PPmonetdbe_column; column_count: NativeUInt): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_append';
-
-function monetdbe_null(dbhdl: monetdbe_database; t: monetdbe_types): Pointer; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_null';
-
-function monetdbe_get_columns(dbhdl: monetdbe_database; const schema_name: PUTF8Char; const table_name: PUTF8Char; column_count: PNativeUInt; columns: PPmonetdbe_column): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_get_columns';
-
-function monetdbe_dump_database(dbhdl: monetdbe_database; const backupfile: PUTF8Char): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_dump_database';
-
-function monetdbe_dump_table(dbhdl: monetdbe_database; const schema_name: PUTF8Char; const table_name: PUTF8Char; const backupfile: PUTF8Char): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_dump_table';
-
-function monetdbe_get_mapi_port(): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_get_mapi_port';
-
-function monetdbe_mapi_dump_database(dbhdl: monetdbe_database; const filename: PUTF8Char): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_dump_database';
-
-function monetdbe_mapi_dump_table(dbhdl: monetdbe_database; const sname: PUTF8Char; const tname: PUTF8Char; const filename: PUTF8Char): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_dump_table';
-
-function monetdbe_mapi_error(mid: monetdbe_Mapi): monetdbe_MapiMsg; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_error';
-
-function monetdbe_mapi_query(mid: monetdbe_Mapi; const query: PUTF8Char): monetdbe_MapiHdl; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_query';
-
-function monetdbe_mapi_close_handle(hdl: monetdbe_MapiHdl): monetdbe_MapiMsg; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_close_handle';
-
-function monetdbe_mapi_fetch_row(hdl: monetdbe_MapiHdl): Integer; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_fetch_row';
-
-function monetdbe_mapi_fetch_field(hdl: monetdbe_MapiHdl; fnr: Integer): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_fetch_field';
-
-function monetdbe_mapi_get_type(hdl: monetdbe_MapiHdl; fnr: Integer): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_get_type';
-
-function monetdbe_mapi_seek_row(hdl: monetdbe_MapiHdl; rowne: Int64; whence: Integer): monetdbe_MapiMsg; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_seek_row';
-
-function monetdbe_mapi_get_row_count(hdl: monetdbe_MapiHdl): Int64; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_get_row_count';
-
-function monetdbe_mapi_rows_affected(hdl: monetdbe_MapiHdl): Int64; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_rows_affected';
-
-function monetdbe_mapi_get_field_count(hdl: monetdbe_MapiHdl): Integer; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_get_field_count';
-
-function monetdbe_mapi_result_error(hdl: monetdbe_MapiHdl): PUTF8Char; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_result_error';
-
-function monetdbe_mapi_get_len(hdl: monetdbe_MapiHdl; fnr: Integer): Integer; cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_get_len';
-
-procedure monetdbe_mapi_explain(mid: monetdbe_Mapi; fd: PInteger); cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_explain';
-
-procedure monetdbe_mapi_explain_query(hdl: monetdbe_MapiHdl; fd: PInteger); cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_explain_query';
-
-procedure monetdbe_mapi_explain_result(hdl: monetdbe_MapiHdl; fd: PInteger); cdecl;
-  external libmonetdbe name _PU + 'monetdbe_mapi_explain_result';
 
 implementation
 

@@ -12,7 +12,12 @@ See for more info on monetdb   www.monetdb.org
 ---
 ## To Do
 
+- Basically everything
 - Create Packages (Delphi / Lazarus)
 - Make tdbdataset descending components
+
+## info
+  https://www.monetdb.org/documentation-Aug2024/dev-guide/mbedded-python/
+  We follow this, as with some conversion, this should be working within Delphi / Lazarus
 
 
