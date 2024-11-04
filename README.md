@@ -17,7 +17,12 @@ See for more info on monetdb   www.monetdb.org
 - Make tdbdataset descending components
 
 ## info
+  The C api for MonetDB/e 
+  https://www.monetdb.org/blogs/monetdbe/  
+
   https://www.monetdb.org/documentation-Aug2024/dev-guide/mbedded-python/
   We follow this, as with some conversion, this should be working within Delphi / Lazarus
+
+  
 
 
