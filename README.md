@@ -15,6 +15,8 @@ See for more info on monetdb   www.monetdb.org
 - Basically everything
 - Create Packages (Delphi / Lazarus)
 - Make tdbdataset descending components
+- Make strings Unicode, or add requirement to switch to US English (please do :-) )
+
 
 ## info
   The C api for MonetDB/e 
