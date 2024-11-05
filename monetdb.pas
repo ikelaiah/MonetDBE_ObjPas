@@ -30,9 +30,13 @@ type
     public
       mdbe          : monetdbe_database;
       mdbe_options  : monetdbe_options;
+
+      function Dump_Database(backupfile:string):string;
+
       function Query_New:tmonetdbquery;
       function Query_Open(sql:string):tmonetdbquery;
       function Query_execSQL(sql:string):string;
+      function Error:string;
 
       property monet_version:pansichar read fgetmonetversion;
       property db:pansichar read fdb write setdb;
@@ -50,6 +54,24 @@ constructor TMonetDBConnection.create;
 begin
   mdbe := nil;
   pmdbe_options:=@mdbe_options ;
+end;
+
+function TMonetDBConnection.Dump_Database(backupfile:string): string;
+var dumpresult:pansichar;
+    utfstring:utf8string;
+begin
+  utfstring:=utf8encode(backupfile);
+  dumpresult :=  monetdbe_dump_database( self.mdbe, putf8char(utfstring));
+  result := dumpresult;
+end;
+
+function TMonetDBConnection.Error: string;
+begin
+  if self.fisconnected=false
+    then
+      result:='Not connected to database'
+    else
+      result:=string( monetdbe.monetdbe_error(self.mdbe));
 end;
 
 function TMonetDBConnection.fgetmonetversion: pansichar;
@@ -92,8 +114,8 @@ begin
         openresult:= monetdbe.monetdbe_open(@mdbe,db, pmdbe_options  ) ;
         case openresult of
            0: fisconnected:=true;
-          -1: showmessage('Allocation Failed');
-          -2: showmessage('Error in Db');
+          -1: begin fisconnected:=false; showmessage('Allocation Failed');  end;
+          -2: begin fisconnected:=false; showmessage('Error in Db');        end;
         end;
       end
     else
@@ -135,6 +157,7 @@ begin
     then
       begin
         //todo:execsql
+
       end;
 end;
 
