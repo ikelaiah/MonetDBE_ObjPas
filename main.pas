@@ -5,9 +5,10 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,monetdb, monetdbe, Data.FMTBcd, Data.DB, Data.SqlExpr, Vcl.ExtCtrls, System.ImageList, Vcl.ImgList,
- system.IniFiles, SVGIconImageListBase, SVGIconImageList, Vcl.Buttons, Vcl.ComCtrls, Vcl.FileCtrl;
+ system.IniFiles, SVGIconImageListBase, SVGIconImageList, Vcl.Buttons, Vcl.ComCtrls, Vcl.FileCtrl, Vcl.Menus;
 
 type
+  //treeimages = (tiDisconnectedDatabase, );
   TForm1 = class(TForm)
     Memo1: TMemo;
     Btn_Connect: TButton;
@@ -17,40 +18,42 @@ type
     Btn_Disconnect: TButton;
     Panel1: TPanel;
     Splitter1: TSplitter;
-    Panel2: TPanel;
-    BtnConnection: TSpeedButton;
     SVGIconImageList1: TSVGIconImageList;
-    EditDBPath: TEdit;
-    Label2: TLabel;
     Panel3: TPanel;
     Panel4: TPanel;
-    TreeView1: TTreeView;
-    SpeedButton1: TSpeedButton;
+    databaseTreeview: TTreeView;
     Panel5: TPanel;
     Splitter4: TSplitter;
-    databaseCombo: TComboBox;
-    SpeedButton2: TSpeedButton;
     SaveDialog1: TSaveDialog;
+    TreeImages: TSVGIconImageList;
+    Label2: TLabel;
+    EditDBPath: TEdit;
+    Panel2: TPanel;
+    Panel6: TPanel;
+    Panel7: TPanel;
+    TreePopup: TPopupMenu;
+    Connect1: TMenuItem;
+    Disconnect1: TMenuItem;
     procedure Btn_VersionClick(Sender: TObject);
-    procedure BtnConnectionClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure databaseComboChange(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure Connect1Click(Sender: TObject);
+    procedure Disconnect1Click(Sender: TObject);
   private
     { Private declarations }
-    procedure populateDatabaseCombo;
+
+    procedure populateTreeview;
   public
     { Public declarations }
     datafarmdirectory, databasedirectory : string;
     connection : monetdb.TMonetDBConnection;
-
   end;
 
 var
-  Form1: TForm1;
-  mdbe_options :  monetdbe_options;
+         Form1 : TForm1;
+  mdbe_options : monetdbe_options;
 implementation
 
 {$R *.dfm}
@@ -60,23 +63,52 @@ begin
    memo1.Lines.add('version : ' +  connection.monet_version );
 end;
 
-procedure TForm1.databaseComboChange(Sender: TObject);
-var settings:tinifile;
+procedure TForm1.Connect1Click(Sender: TObject);
+var      i : integer;
+    dbpath : string;
+  function TrailSlash(val:string):string;
+    begin
+      if val[length(val)-1]='\'
+        then  result:=val
+        else result:=val+'\'
+    end;
 begin
-   settings:= system.IniFiles.TIniFile.Create(extractfilepath(application.ExeName)+'settings.ini');
-  self.databasedirectory := databaseCombo.Text;
-  settings.writestring('DBLocation','DataBaseDirectory', self.databaseCombo.Text);
-  settings.free;
+  for I := 0 to self.databaseTreeview.items.Count-1 do
+    begin
+      if self.databaseTreeview.Items.Item[I].ImageIndex = self.TreeImages.GetIndexByName('connected_database')
+        then
+          begin
+            self.databaseTreeview.Items.Item[I].ImageIndex := self.TreeImages.GetIndexByName('Disconnected_database')    ;
+            self.databaseTreeview.Items.Item[i].SelectedIndex := self.databaseTreeview.Items.Item[I].ImageIndex ;
+            connection.connected := false;
+            break;
+          end;
+    end;
+  self.databaseTreeview.Selected.ImageIndex := self.TreeImages.GetIndexByName('connected_database');
+  self.databaseTreeview.selected.SelectedIndex := self.databaseTreeview.selected.ImageIndex ;
+  connection.db :=  trailslash(self.datafarmdirectory)+ self.databaseTreeview.Selected.text;
+  connection.connected := true;
+  memo1.Lines.Add('Connected database : '+connection.db);
+end;
 
+procedure TForm1.Disconnect1Click(Sender: TObject);
+begin
+   if self.databaseTreeview.Selected.ImageIndex = self.TreeImages.GetIndexByName('connected_database')
+     then
+       begin;
+         connection.connected := false;
+         databaseTreeview.Selected.ImageIndex := self.TreeImages.GetIndexByName('Disconnected_database') ;
+         databasetreeview.Selected.SelectedIndex := databasetreeview.Selected.ImageIndex;
+       end;
 end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
-var settings:tinifile;
+var
+  settings:tinifile;
 begin
-   settings:= system.IniFiles.TIniFile.Create(extractfilepath(application.ExeName)+'settings.ini');
-
-   settings.UpdateFile;
-   settings.free;
+  settings:= system.IniFiles.TIniFile.Create(extractfilepath(application.ExeName)+'settings.ini');
+  settings.UpdateFile;
+  settings.free;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -84,7 +116,6 @@ var settings:tinifile;     i:integer;
 begin
   if connection=nil
     then connection:=monetdb.TMonetDBConnection.create;
-
   if fileexists(extractfilepath(application.ExeName)+'settings.ini')
     then
       begin
@@ -99,24 +130,25 @@ begin
         settings.WriteString('DBLocation','DataBaseDirectory','default');         //complete dir path is combination of datafarmdirectory
       end;                                                                          //and databasedirectory --> c:\monetdbfarm\default
    self.EditDBPath.Text    := datafarmdirectory;
-   self.populateDatabaseCombo ;
+   self.populateTreeview;
    memo1.Lines.Add('Monetdbe version :'+connection.monet_version);
 end;
 
-procedure TForm1.populateDatabaseCombo;
-var sr: TSearchRec;   fn:string; i:integer;
+
+procedure TForm1.populateTreeview;
+var
+  sr: TSearchRec;
+  fn:string;
+  tn:ttreenode;
 begin
-  i:=-1;
-  databasecombo.clear;
+  self.databaseTreeview.items.clear;
   FindFirst( self.datafarmdirectory +'\*',(faDirectory),sr);
   while FindNext(sr) = 0 do
     begin
-
       fn:=trim(sr.FindData.cFileName);
-      databasecombo.Items.Add(fn);
-      inc(i);
-      if fn=self.databasedirectory then databasecombo.itemindex := i;
-
+      tn:=databaseTreeview.Items.AddChild(nil, fn );
+      tn.ImageIndex :=  self.TreeImages.GetIndexByName('Disconnected_database');
+      tn.SelectedIndex := tn.ImageIndex;
     end;
 
 end;
@@ -142,39 +174,6 @@ begin
         if dropresult='' then dropresult:=savedialog1.filename;
 
         memo1.Lines.Add('Database Dump :'+ dropresult );
-      end;
-end;
-
-procedure TForm1.BtnConnectionClick(Sender: TObject);
-  function TrailSlash(val:string):string;
-    begin
-      if val[length(val)-1]='\'
-        then  result:=val
-        else result:=val+'\'
-    end;
-begin
-
-  if BtnConnection.down
-    then
-      begin
-        if connection.connected=false
-          then
-            begin
-              connection.db := PAnsiChar(AnsiString( trailslash(self.datafarmdirectory)+ self.databasedirectory));
-              connection.connected := true;
-              if connection.connected
-                then memo1.Lines.Add('Connected : '+trailslash(datafarmdirectory)+self.databasedirectory)
-                else memo1.Lines.Add('Error : '+connection.Error);
-            end;
-      end
-    else
-      begin
-        if connection.connected
-          then
-            begin
-              connection.connected:=false;
-              memo1.Lines.Add('Disconnected ');
-            end;
       end;
 end;
 
