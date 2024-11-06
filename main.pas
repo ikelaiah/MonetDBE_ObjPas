@@ -43,8 +43,8 @@ type
     procedure populateDatabaseCombo;
   public
     { Public declarations }
-    datafarmdirectory, databasedirectory:string;
-    connection:monetdb.TMonetDBConnection;
+    datafarmdirectory, databasedirectory : string;
+    connection : monetdb.TMonetDBConnection;
 
   end;
 

@@ -10,9 +10,16 @@ type
   TMonetDBConnection = class;
 
   TMonetDBQuery = class
+     private
+       fsql: PUtf8char;
+        function getSQL:string;
+       procedure setSQL(_sql:string);
      public
        connection : TmonetDBConnection;
-       sql:string;
+       result:monetdbe.PPmonetdbe_result;
+       affected_rows : monetdbe.monetdbe_cnt;
+
+       property sql:string read getSQL write setSQL;
        function ExecSQL:integer;
        procedure Open;
        procedure Close;
@@ -22,11 +29,12 @@ type
   TMonetDBConnection = class
     private
        fisconnected : boolean;
-                fdb : pansichar;
+                fdb : putf8char;
       pmdbe_options : Pmonetdbe_options ;
       procedure setconnection(value:boolean);
-      procedure setDB(value:pansichar);
-      function fgetmonetversion:pansichar;
+      procedure setDB(value:string);
+      function getdb:string;
+      function fgetmonetversion:string;
       function get_autocommit:boolean;
       procedure set_autocommit(value:boolean);
     public
@@ -36,14 +44,13 @@ type
       function Dump_Database(backupfile:string):string;
       function Dump_Table(schema_name, table_name, backupfile:string):string;
 
-      function Query_New:tmonetdbquery;
       function Query_Open(sql:string):tmonetdbquery;
       function Query_execSQL(sql:string):string;
       function Error:string;
-      property autocommit:boolean read get_autocommit write set_autocommit;
 
-      property monet_version:pansichar read fgetmonetversion;
-      property db:pansichar read fdb write setdb;
+      property autocommit:boolean read get_autocommit write set_autocommit;
+      property monet_version:string read fgetmonetversion;
+      property db:string read getdb write setdb;
       property connected:boolean read fisconnected write setconnection;
       constructor create;
   end;
@@ -88,9 +95,14 @@ begin
       result:=string( monetdbe.monetdbe_error(self.mdbe));
 end;
 
-function TMonetDBConnection.fgetmonetversion: pansichar;
+function TMonetDBConnection.fgetmonetversion: string;
 begin
-  result:=monetdbe.monetdbe_version;
+  result:=utf8tostring(monetdbe.monetdbe_version);
+end;
+
+function TMonetDBConnection.getdb: string;
+begin
+  result := utf8tostring(fdb);
 end;
 
 function TMonetDBConnection.get_autocommit: boolean;
@@ -117,11 +129,6 @@ begin
   end;
 end;
 
-function TMonetDBConnection.Query_New: tmonetdbquery;
-begin
-  result:=tmonetdbquery.Create(self);
-end;
-
 function TMonetDBConnection.Query_Open(sql: string): tmonetdbquery;
 begin
   result:=tmonetdbquery.Create(self);
@@ -136,7 +143,7 @@ begin
   if value=true
     then
       begin
-        openresult:= monetdbe.monetdbe_open(@mdbe,db, pmdbe_options  ) ;
+        openresult:= monetdbe.monetdbe_open(@mdbe,fdb, pmdbe_options  ) ;
         case openresult of
            0: fisconnected:=true;
           -1: begin fisconnected:=false; showmessage('Allocation Failed');  end;
@@ -152,14 +159,17 @@ begin
       end;
 end;
 
-procedure TMonetDBConnection.setDB(value: pansichar);
+procedure TMonetDBConnection.setDB(value:string);
+var
+  utf_db:utf8string;
 begin
   if value=''
     then
       fdb := nil
     else
       begin
-        fdb := value;
+        utf_db := utf8encode(value);
+           fdb := putf8char(utf_db);
       end;
 end;
 
@@ -193,13 +203,28 @@ begin
       end;
 end;
 
+function TMonetDBQuery.getSQL: string;
+begin
+  result:=utf8tostring( fsql);
+end;
+
 procedure TMonetDBQuery.Open;
 begin
   if connection.connected
     then
       begin
         //  todo:Open
+
+        monetdbe.monetdbe_query(connection.mdbe, fsql, self.result, @affected_rows  ) ;
       end;
+end;
+
+procedure TMonetDBQuery.setSQL(_sql: string);
+var
+  utf_sql:utf8string;
+begin
+  utf_sql :=utf8encode(_sql);
+  self.fsql := putf8char(utf_sql);
 end;
 
 end.
