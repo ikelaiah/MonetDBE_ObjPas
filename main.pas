@@ -30,6 +30,7 @@ type
     Splitter4: TSplitter;
     databaseCombo: TComboBox;
     SpeedButton2: TSpeedButton;
+    SaveDialog1: TSaveDialog;
     procedure Btn_VersionClick(Sender: TObject);
     procedure BtnConnectionClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
@@ -133,8 +134,15 @@ end;
 procedure TForm1.SpeedButton2Click(Sender: TObject);
 var dropresult:string;
 begin
-  dropresult :=   connection.Dump_Database('c:\temp\backupdb')        ;
-  memo1.Lines.Add('Database Dump :'+ dropresult );
+//  dropresult :=   connection.Dump_Database('c:\temp\backupdb')        ;
+  if savedialog1.Execute
+    then
+      begin
+        dropresult  := connection.Dump_Database(savedialog1.FileName);
+        if dropresult='' then dropresult:=savedialog1.filename;
+
+        memo1.Lines.Add('Database Dump :'+ dropresult );
+      end;
 end;
 
 procedure TForm1.BtnConnectionClick(Sender: TObject);

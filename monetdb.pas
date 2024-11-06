@@ -27,16 +27,20 @@ type
       procedure setconnection(value:boolean);
       procedure setDB(value:pansichar);
       function fgetmonetversion:pansichar;
+      function get_autocommit:boolean;
+      procedure set_autocommit(value:boolean);
     public
       mdbe          : monetdbe_database;
       mdbe_options  : monetdbe_options;
 
       function Dump_Database(backupfile:string):string;
+      function Dump_Table(schema_name, table_name, backupfile:string):string;
 
       function Query_New:tmonetdbquery;
       function Query_Open(sql:string):tmonetdbquery;
       function Query_execSQL(sql:string):string;
       function Error:string;
+      property autocommit:boolean read get_autocommit write set_autocommit;
 
       property monet_version:pansichar read fgetmonetversion;
       property db:pansichar read fdb write setdb;
@@ -57,12 +61,22 @@ begin
 end;
 
 function TMonetDBConnection.Dump_Database(backupfile:string): string;
-var dumpresult:pansichar;
-    utfstring:utf8string;
+var
+  dumpresult:pansichar;
+  utf_backupfile:utf8string;
 begin
-  utfstring:=utf8encode(backupfile);
-  dumpresult :=  monetdbe_dump_database( self.mdbe, putf8char(utfstring));
-  result := dumpresult;
+  utf_backupfile:=utf8encode(backupfile);
+  result :=  monetdbe_dump_database( self.mdbe, putf8char(utf_backupfile));
+end;
+
+function TMonetDBConnection.Dump_Table(schema_name, table_name, backupfile: string): string;
+var
+  utf_schema_name, utf_table_name, utf_backupfile:utf8string;
+begin
+  utf_schema_name:=utf8encode(schema_name);
+  utf_table_name:=utf8encode(table_name);
+  utf_backupfile:=utf8encode(backupfile);
+  result:= monetdbe_dump_table(self.mdbe, putf8char(utf_schema_name),putf8char(utf_table_name),putf8char(utf_backupfile));
 end;
 
 function TMonetDBConnection.Error: string;
@@ -77,6 +91,17 @@ end;
 function TMonetDBConnection.fgetmonetversion: pansichar;
 begin
   result:=monetdbe.monetdbe_version;
+end;
+
+function TMonetDBConnection.get_autocommit: boolean;
+var res:integer;
+begin
+  monetdbe.monetdbe_get_autocommit(@mdbe, @res);
+  if res=0
+    then
+      result:=false
+    else
+      result:=true;
 end;
 
 function TMonetDBConnection.Query_execSQL(sql: string): string;
@@ -136,6 +161,13 @@ begin
       begin
         fdb := value;
       end;
+end;
+
+procedure TMonetDBConnection.set_autocommit(value: boolean);
+var res:integer;
+begin
+  if value=true then res:=1 else res:=0;
+  monetdbe.monetdbe_set_autocommit(@mdbe, res);
 end;
 
 { TMonetDBQuery }

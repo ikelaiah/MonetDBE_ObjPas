@@ -101,8 +101,8 @@ object Form1: TForm1
       object SpeedButton1: TSpeedButton
         Left = 8
         Top = 63
-        Width = 51
-        Height = 41
+        Width = 64
+        Height = 51
         Hint = 'Version Info'
         ImageIndex = 2
         ImageName = 'activity'
@@ -114,8 +114,8 @@ object Form1: TForm1
       object SpeedButton2: TSpeedButton
         Left = 78
         Top = 63
-        Width = 51
-        Height = 41
+        Width = 75
+        Height = 51
         Hint = 'Version Info'
         ImageIndex = 3
         ImageName = 'trash'
@@ -274,5 +274,11 @@ object Form1: TForm1
     Scaled = True
     Left = 296
     Top = 680
+  end
+  object SaveDialog1: TSaveDialog
+    DefaultExt = 'sql'
+    Filter = 'sql|*.sql'
+    Left = 498
+    Top = 177
   end
 end
